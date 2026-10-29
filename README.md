@@ -1,16 +1,18 @@
 # Dynquora Physics Engine
 
-Dynquora es una biblioteca de simulación XPBD (Extended Position-Based Dynamics) CPU-first para C y C++. Este repositorio contiene un MVP funcional, no un motor de producción completo. «Dynquora» es un nombre provisional: no implica disponibilidad, registro ni exclusividad de marca.
+[Versi\u00f3n en espa\u00f1ol](README.es.md)
 
-## Alcance actual
+Dynquora is a CPU-first XPBD (Extended Position-Based Dynamics) simulation library for C and C++. This repository contains a functional MVP, not a complete production engine. “Dynquora” is a provisional name and does not imply name availability, registration, or trademark exclusivity.
 
-El núcleo implementa partículas con posición/velocidad, masas inversas, gravedad, restricciones de distancia XPBD, substeps, iteraciones, capacidad fija y una ABI C11. No implementa colisiones, broadphase, malla deformable, multihilo, SIMD especializado, GPU, serialización ni integraciones Godot/Unreal. La API de allocator está reservada en la ABI; el MVP rechaza allocators personalizados con `DQ_UNSUPPORTED_BACKEND` hasta que el almacenamiento SoA sea allocator-aware.
+## Current scope
 
-Los datos se almacenan internamente y se reservan al crear el contexto. Tras la reserva no hay crecimiento en `dq_step`. `dq_particles_acquire` presta una vista zero-copy; debe liberarse con la misma generación antes de añadir datos o ejecutar otro paso. La misma instancia no es thread-safe: serialice todas sus llamadas en el host.
+The core implements particles with position and velocity, inverse masses, gravity, XPBD distance constraints, substeps, iterations, fixed capacity, and a C11 ABI. It does not implement collisions, broadphase, deformable meshes, multithreading, specialized SIMD, GPU support, serialization, or Godot/Unreal integrations. The allocator API is reserved in the ABI; this MVP rejects custom allocators with `DQ_UNSUPPORTED_BACKEND` until the SoA storage becomes allocator-aware.
 
-## Compilación
+Data is stored internally and allocated when the context is created. Once allocated, `dq_step` does not grow storage. `dq_particles_acquire` lends a zero-copy view; it must be released using the same generation before adding data or running another step. A single instance is not thread-safe: serialize all calls from the host.
 
-Requiere CMake 3.20 y compilador C++20/C11. No se verificó CMake en el entorno de desarrollo de este cambio porque no estaba instalado; la librería, ejemplo C y test sí se comprobaron directamente con Clang.
+## Building
+
+Requires CMake 3.20 and a C++20/C11 compiler.
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -19,11 +21,11 @@ ctest --test-dir build --output-on-failure
 cmake --install build --prefix /tmp/dynquora-install
 ```
 
-En Windows, use `cmake -S . -B build -G Ninja` o el generador Visual Studio y `cmake --build build --config Release`. `DQ_ENABLE_NATIVE_ARCH` está desactivada por defecto, como también sanitizers y warnings-as-errors. No se activa `fast-math`.
+On Windows, use `cmake -S . -B build -G Ninja` or the Visual Studio generator, then `cmake --build build --config Release`. `DQ_ENABLE_NATIVE_ARCH` is disabled by default, as are sanitizers and warnings-as-errors. `fast-math` is not enabled.
 
-### Visor gráfico opcional
+### Optional graphical viewer
 
-El visor técnico usa raylib y está separado del motor. Tras instalar raylib (en macOS: `brew install raylib`), ejecútelo con:
+The diagnostic viewer uses raylib and is separate from the engine. After installing raylib (on macOS: `brew install raylib`), run:
 
 ```bash
 cmake -S . -B build-viewer -DDQ_BUILD_VIEWER=ON
@@ -31,14 +33,14 @@ cmake --build build-viewer --parallel
 ./build-viewer/dq_viewer
 ```
 
-`Space` pausa, `N` avanza un paso y `R` reinicia la escena de cuerda XPBD.
+`Space` pauses, `N` advances one step, and `R` resets the XPBD rope scene.
 
-## Modelo físico y límites
+## Physical model and limits
 
-Para cada restricción de distancia, el solver proyecta `C(x)=|x_a-x_b|-L=0` mediante XPBD: `Δλ=(-C-α~λ)/(w_a+w_b+α~)`, con `α~=compliance/h²`. Los valores admitidos son finitos; `dt > 0`, masas inversas y compliance no negativos. Un timestep fijo y pequeño, con substeps, es el modo recomendado. Las posiciones coincidentes se omiten en esta primera versión para evitar una normal indefinida.
+For every distance constraint, the solver projects `C(x)=|x_a-x_b|-L=0` using XPBD: `Δλ=(-C-α~λ)/(w_a+w_b+α~)`, where `α~=compliance/h²`. Input values must be finite; `dt > 0`, inverse masses, and compliance must be non-negative. A small fixed timestep with substeps is the recommended mode. Coincident positions are skipped in this first version to avoid an undefined normal.
 
-Véase [docs/architecture.md](docs/architecture.md) para decisiones, contratos, pruebas y roadmap. La cabecera pública es [include/dynquora/physics.h](include/dynquora/physics.h), y [examples/c/minimal.c](examples/c/minimal.c) muestra el ciclo completo.
+See [docs/architecture.md](docs/architecture.md) for design decisions, contracts, tests, and the roadmap. The public header is [include/dynquora/physics.h](include/dynquora/physics.h), and [examples/c/minimal.c](examples/c/minimal.c) demonstrates the full cycle.
 
-## Licencia
+## License
 
-Apache-2.0 propuesta. Antes de publicar, un titular de copyright debe revisar `LICENSE` y `NOTICE`.
+Apache-2.0 is proposed. Before publishing, a copyright holder should review `LICENSE` and `NOTICE`.
