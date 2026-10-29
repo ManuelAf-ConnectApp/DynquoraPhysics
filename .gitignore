@@ -1,0 +1,22 @@
+# CMake build outputs
+/build/
+/build-viewer/
+/cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+CTestTestfile.cmake
+Testing/
+
+# Platform and editor metadata
+.DS_Store
+.idea/
+.vscode/
+
+# Compiled objects and libraries
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
