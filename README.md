@@ -1,6 +1,6 @@
 # Dynquora Physics Engine
 
-[Versi\u00f3n en espa\u00f1ol](README.es.md)
+[Versión en español](README.es.md)
 
 Dynquora is a CPU-first XPBD (Extended Position-Based Dynamics) simulation library for C and C++. This repository contains a functional MVP, not a complete production engine. “Dynquora” is a provisional name and does not imply name availability, registration, or trademark exclusivity.
 
