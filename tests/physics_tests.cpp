@@ -46,6 +46,21 @@ static void test_particle_contact() {
   assert(dq_particles_release(c,v.generation)==DQ_OK); dq_stats stats{}; assert(dq_context_get_stats(c,&stats)==DQ_OK && stats.cached_contact_count==1); dq_context_destroy(c);
 }
 
+static void test_contact_grid_contract_and_z_axis() {
+  dq_context_desc invalid{}; invalid.struct_size=sizeof invalid; invalid.max_particles=2; invalid.solver_iterations=1; invalid.substeps=1;
+  invalid.grid_cell_size=0.25f; invalid.particle_radius=0.5f;
+  dq_context* c=nullptr; assert(dq_context_create(&invalid,&c)==DQ_INVALID_ARGUMENT && c==nullptr);
+
+  dq_context_desc d{}; d.struct_size=sizeof d; d.max_particles=2; d.solver_iterations=1; d.substeps=1;
+  d.grid_cell_size=1.0f; d.particle_radius=0.5f;
+  assert(dq_context_create(&d,&c)==DQ_OK);
+  dq_particle_id a,b; dq_particle_desc p{{0,0,0},{0,0,0},1};
+  assert(dq_context_add_particle(c,&p,&a)==DQ_OK); p.position.z=0.25f; assert(dq_context_add_particle(c,&p,&b)==DQ_OK);
+  assert(dq_step(c,0.1f)==DQ_OK); dq_particle_view v{}; assert(dq_particles_acquire(c,&v)==DQ_OK);
+  assert(std::fabs(v.positions[a].z-v.positions[b].z) >= 0.999f);
+  assert(dq_particles_release(c,v.generation)==DQ_OK); dq_context_destroy(c);
+}
+
 static void test_stats() {
   dq_context_desc d{}; d.struct_size=sizeof d; d.max_particles=1; d.solver_iterations=1; d.substeps=1;
   dq_context* c = nullptr; assert(dq_context_create(&d,&c)==DQ_OK);
@@ -55,4 +70,4 @@ static void test_stats() {
   dq_context_destroy(c);
 }
 
-struct AddTests { AddTests() { test_conservation_capacity_and_validation(); test_floor_collision(); test_particle_contact(); test_stats(); } } add_tests;
+struct AddTests { AddTests() { test_conservation_capacity_and_validation(); test_floor_collision(); test_particle_contact(); test_contact_grid_contract_and_z_axis(); test_stats(); } } add_tests;

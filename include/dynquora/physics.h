@@ -64,12 +64,12 @@ typedef struct dq_context_desc {
   uint32_t substeps;
   dq_vec3 gravity;
   float linear_damping; /* [0, 1], applied once per substep to dynamic velocities. */
-  float grid_cell_size; /* Positive enables the preallocated compact uniform grid. */
+  float grid_cell_size; /* Positive enables the preallocated 3D compact uniform grid. */
   uint32_t enable_floor;
   float floor_height;
   float floor_restitution; /* [0, 1] */
   float floor_friction; /* [0, 1] */
-  float particle_radius; /* Positive enables particle-particle contacts when grid is enabled. */
+  float particle_radius; /* Positive enables contacts; grid_cell_size must be >= 2 * radius. */
   uint32_t max_particle_contacts; /* Zero selects max_particles; capacity is never grown in dq_step. */
   float particle_contact_compliance; /* Non-negative XPBD compliance. */
   float particle_restitution; /* [0, 1], applied to approaching particle contacts. */

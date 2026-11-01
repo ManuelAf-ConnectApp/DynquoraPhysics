@@ -6,9 +6,9 @@ Dynquora es una biblioteca de simulación XPBD (Extended Position-Based Dynamics
 
 ## Alcance actual
 
-El núcleo implementa partículas con posición y velocidad, masas inversas, gravedad, restricciones de distancia XPBD, substeps, iteraciones, capacidad fija y una ABI C11. No implementa colisiones, broadphase, mallas deformables, multihilo, SIMD especializado, GPU, serialización ni integraciones con Godot o Unreal. La API de allocator está reservada en la ABI; el MVP rechaza allocators personalizados con `DQ_UNSUPPORTED_BACKEND` hasta que el almacenamiento SoA sea compatible con allocators.
+El núcleo implementa partículas con posición y velocidad, masas inversas, gravedad, restricciones de distancia XPBD, broadphase mediante grid uniforme compacta 3D, contactos entre partículas, plano de suelo, substeps, iteraciones, capacidad fija y una ABI C11. No implementa mallas deformables, multihilo, SIMD especializado, GPU, serialización ni integraciones con Godot o Unreal. La API de allocator está reservada en la ABI; el MVP rechaza allocators personalizados con `DQ_UNSUPPORTED_BACKEND` hasta que el almacenamiento SoA sea compatible con allocators.
 
-Los datos se almacenan internamente y se reservan al crear el contexto. Tras la reserva, `dq_step` no incrementa el almacenamiento. `dq_particles_acquire` presta una vista zero-copy; debe liberarse con la misma generación antes de añadir datos o ejecutar otro paso. Una misma instancia no es thread-safe: serializa todas sus llamadas desde el host.
+Los datos se almacenan internamente y se reservan al crear el contexto. Tras la reserva, `dq_step` no incrementa el almacenamiento. `dq_particles_acquire` crea un snapshot AoS de lectura en buffers preasignados a partir del SoA interno; debe liberarse con la misma generación antes de añadir datos o ejecutar otro paso. Una misma instancia no es thread-safe: serializa todas sus llamadas desde el host. Los contactos requieren `grid_cell_size >= 2 * particle_radius`.
 
 ## Compilación
 

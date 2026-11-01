@@ -6,9 +6,9 @@ Dynquora is a CPU-first XPBD (Extended Position-Based Dynamics) simulation libra
 
 ## Current scope
 
-The core implements particles with position and velocity, inverse masses, gravity, XPBD distance constraints, substeps, iterations, fixed capacity, and a C11 ABI. It does not implement collisions, broadphase, deformable meshes, multithreading, specialized SIMD, GPU support, serialization, or Godot/Unreal integrations. The allocator API is reserved in the ABI; this MVP rejects custom allocators with `DQ_UNSUPPORTED_BACKEND` until the SoA storage becomes allocator-aware.
+The core implements particles with position and velocity, inverse masses, gravity, XPBD distance constraints, a compact 3D uniform-grid broadphase, particle contacts, a floor plane, substeps, iterations, fixed capacity, and a C11 ABI. It does not implement deformable meshes, multithreading, specialized SIMD, GPU support, serialization, or Godot/Unreal integrations. The allocator API is reserved in the ABI; this MVP rejects custom allocators with `DQ_UNSUPPORTED_BACKEND` until the SoA storage becomes allocator-aware.
 
-Data is stored internally and allocated when the context is created. Once allocated, `dq_step` does not grow storage. `dq_particles_acquire` lends a zero-copy view; it must be released using the same generation before adding data or running another step. A single instance is not thread-safe: serialize all calls from the host.
+Data is stored internally and allocated when the context is created. Once allocated, `dq_step` does not grow storage. `dq_particles_acquire` creates a preallocated AoS read snapshot from the internal SoA buffers; it must be released using the same generation before adding data or running another step. A single instance is not thread-safe: serialize all calls from the host. Particle contacts require `grid_cell_size >= 2 * particle_radius`.
 
 ## Building
 

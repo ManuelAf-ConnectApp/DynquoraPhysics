@@ -9,7 +9,11 @@ option(DQ_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 option(DQ_ENABLE_NATIVE_ARCH "Enable host-specific CPU instructions (local builds only)" OFF)
 option(DQ_BUILD_VIEWER "Build the optional raylib diagnostic viewer" OFF)
 
-add_library(dynquora_physics src/c_api/physics.cpp)
+add_library(dynquora_physics
+  src/c_api/physics.cpp
+  src/contacts/particle_contacts.cpp
+  src/solvers/xpbd.cpp
+  src/spatial/uniform_grid.cpp)
 add_library(Dynquora::Physics ALIAS dynquora_physics)
 if(BUILD_SHARED_LIBS)
   target_compile_definitions(dynquora_physics PRIVATE DQ_BUILDING_LIBRARY PUBLIC DQ_BUILD_SHARED)
@@ -18,6 +22,7 @@ target_compile_features(dynquora_physics PRIVATE cxx_std_20)
 target_include_directories(dynquora_physics PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
+target_include_directories(dynquora_physics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set_target_properties(dynquora_physics PROPERTIES
   CXX_VISIBILITY_PRESET hidden VISIBILITY_INLINES_HIDDEN YES POSITION_INDEPENDENT_CODE YES)
 
@@ -39,7 +44,8 @@ else()
   endif()
   if(DQ_ENABLE_SANITIZERS)
     target_compile_options(dynquora_physics PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
-    target_link_options(dynquora_physics PRIVATE -fsanitize=address,undefined)
+    # Consumers of a static library must link the sanitizer runtimes too.
+    target_link_options(dynquora_physics PUBLIC -fsanitize=address,undefined)
   endif()
 endif()
 
